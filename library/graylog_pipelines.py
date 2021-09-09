@@ -363,7 +363,12 @@ def create_rule(module, rule_url, headers):
 
     response, info = fetch_url(module=module, url=url, headers=json.loads(headers), timeout=20, method='POST', data=module.jsonify(payload))
 
-    if info['status'] != 200:
+    if info['status'] != 200 and ( "duplicate key error" in str(info['body'])):
+        rule = query_rules(module, rule_url, headers, payload['title'])
+        url = "/".join([rule_url, str(rule)])
+        response, info = fetch_url(module=module, url=url, headers=json.loads(headers), method='PUT', timeout=20, data=module.jsonify(payload))        
+
+    elif info['status'] != 200:
         module.fail_json(msg="Fail: %s" % ("Status: " + str(info['msg']) + ", Message: " + str(info['body'])))
 
     try:
@@ -573,7 +578,7 @@ def query_rules(module, rule_url, headers, rule_name):
 
     url = rule_url
 
-    response, info = fetch_url(module=module, url=url, headers=json.loads(headers), timeout=20, method='GET')
+    response, info = fetch_url(module=module, url=url, headers=json.loads(headers), method='GET')
 
     if info['status'] != 200:
         module.fail_json(msg="Fail: %s" % ("Status: " + str(info['msg']) + ", Message: " + str(info['body'])))
@@ -596,7 +601,6 @@ def query_rules(module, rule_url, headers, rule_name):
             i += 1
 
     return rule_id
-
 
 def get_token(module, endpoint, username, password):
 
