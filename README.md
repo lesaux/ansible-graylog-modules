@@ -1,4 +1,7 @@
 # ansible-graylog-modules
+
+Modified to have create fallback to upate when object already exists.
+
 Ansible modules for the [Graylog2/graylog2-server](https://github.com/graylog2/graylog2-server) API
 
 A full example playbook can be found in `main.yml`.
