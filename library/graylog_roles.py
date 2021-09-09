@@ -173,7 +173,12 @@ def create(module, base_url, headers):
 
     response, info = fetch_url(module=module, url=url, headers=json.loads(headers), method='POST', data=module.jsonify(payload))
 
-    if info['status'] != 201:
+    if info['status'] != 201 and ("already exists" in str(info['body'])):
+        print('role already exists')
+        url = "/".join([base_url, module.params['name']])
+        response, info = fetch_url(module=module, url=url, headers=json.loads(headers), method='PUT', data=module.jsonify(payload))
+    
+    elif info['status'] != 201:
         module.fail_json(msg="Fail: %s" % ("Status: " + str(info['msg']) + ", Message: " + str(info['body'])))
 
     try:
