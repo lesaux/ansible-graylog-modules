@@ -306,7 +306,12 @@ def create(module, base_url, headers, creation_date):
 
     response, info = fetch_url(module=module, url=url, headers=json.loads(headers), method='POST', data=module.jsonify(payload))
 
-    if info['status'] != 200:
+    if info['status'] != 200 and ("would conflict with an existing index set" in str(info['body'])):
+        index_id = query_index_sets(module, base_url, headers, payload['title'])
+        url = "/".join([base_url, str(index_id)])
+        response, info = fetch_url(module=module, url=url, headers=json.loads(headers), method='PUT', data=module.jsonify(payload))
+
+    elif info['status'] != 200:
         module.fail_json(msg="Fail: %s" % ("Status: " + str(info['msg']) + ", Message: " + str(info['body'])))
 
     try:
